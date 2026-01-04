@@ -5,6 +5,7 @@ contract MyTokenWork {
     string private name;
     string private symbol;
     uint8 constant private decimals = 18;
+    bool private paused = false;
     uint256 private totalSupply;
 
     mapping(address => uint256) public balanceMp;
@@ -18,6 +19,19 @@ contract MyTokenWork {
     modifier onlyOwner {
         require(msg.sender == owner, "only owner execute");
         _;
+    }
+
+    modifier whenNotPaused {
+        require(!paused, "Contract is paused");
+        _;
+    }
+
+    function pause() public onlyOwner {
+    paused = true;
+    }
+
+    function unpause() public onlyOwner {
+        paused = false;
     }
 
     constructor(
@@ -34,7 +48,7 @@ contract MyTokenWork {
         emit Transfer(address(0), msg.sender, totalSupply);
     }
 
-    function transfer(address to, uint256 amount) public returns(bool) {
+    function transfer(address to, uint256 amount) public whenNotPaused returns(bool) {
         checkAddress(to, "To transfer zero addrees");
         checkBalance(balanceMp[msg.sender], amount, "Insufficient balance");
 
@@ -45,7 +59,7 @@ contract MyTokenWork {
         return true;
     }
 
-    function approval(address spender, uint256 amount) public returns(bool){
+    function approval(address spender, uint256 amount) public whenNotPaused returns(bool){
         
         checkAddress(spender, "Approval spender addrees is zero");
 
@@ -57,7 +71,7 @@ contract MyTokenWork {
         return true;
     }
 
-    function transferFrom(address from, address to, uint256 amount) public returns(bool) {
+    function transferFrom(address from, address to, uint256 amount) public whenNotPaused returns(bool) {
         checkAddress(from, "From transfer addrees is zero");
         checkAddress(to, "To transfer addrees is zero");
         checkBalance(balanceMp[from], amount, "Insufficient balance");
