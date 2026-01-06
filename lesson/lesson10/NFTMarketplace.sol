@@ -374,7 +374,7 @@ contract NFTMarketplace is ReentrancyGuard {
             (bool successSeller, ) = auction.seller.call{value: sellerAmount}("");
             require(successSeller, "Transfer to seller failed");
 
-            (bool successFee, ) = auction.seller.call{value: sellerAmount}("");
+            (bool successFee, ) = feeRecipient.call{value: sellerAmount}("");
             require(successFee, "Transfer fee failed");
 
             emit AuctionEnded(
